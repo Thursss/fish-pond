@@ -1,0 +1,15 @@
+.game {
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 400px;
+  background: #efefef40;
+  border: 1px solid #999;
+  .bird {
+    position: absolute;
+    left: 70px;
+  }
+}

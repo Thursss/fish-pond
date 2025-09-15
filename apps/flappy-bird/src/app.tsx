@@ -1,3 +1,6 @@
+import Game from './components/game'
+import './app.scss'
+
 export function App() {
-  return <div>Flappy Bird</div>
+  return <Game />
 }
