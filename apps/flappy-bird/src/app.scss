@@ -1,15 +1,71 @@
-.game {
+.game-container {
   margin: 0 auto;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  .score {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    z-index: 99;
+  }
+}
+.game {
+  position: relative;
   width: 600px;
   height: 400px;
   background: #efefef40;
   border: 1px solid #999;
+  box-sizing: content-box;
+  overflow: hidden;
+  .pipe-group {
+    position: absolute;
+    left: 100%;
+    height: 100%;
+    z-index: 9;
+    .pipe {
+      position: absolute;
+      width: 25px;
+      height: 100%;
+      .top {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        background: #999;
+        &::after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: -15%;
+          width: 130%;
+          height: 15px;
+          background-color: rgb(0, 255, 64);
+        }
+      }
+      .bottom {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: #999;
+        &::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -15%;
+          width: 130%;
+          height: 15px;
+          background-color: rgb(0, 255, 64);
+        }
+      }
+    }
+  }
   .bird {
     position: absolute;
+    top: 0;
     left: 70px;
+    background-color: #ffe18d83;
+    width: 40px;
+    height: 20px;
   }
 }

@@ -7,13 +7,14 @@ interface Options {
   shift?: boolean
   alt?: boolean
   meta?: boolean // Mac ⌘
+  keyType: 'keydown' | 'keyup'
 }
 
-export function useKeyboard(event: 'keydown' | 'keyup', key: string, handler: KeyHandler, options: Options = {}) {
+export function useKeyboard(key: string, handler: KeyHandler, options: Options = { keyType: 'keydown' }) {
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const { ctrl, shift, alt, meta } = options
+    const { ctrl, shift, alt, meta, keyType } = options
 
+    const handleKeyDown = (event: KeyboardEvent) => {
       // 校验组合键
       if ((ctrl && !event.ctrlKey)
         || (shift && !event.shiftKey)
@@ -27,7 +28,7 @@ export function useKeyboard(event: 'keydown' | 'keyup', key: string, handler: Ke
       }
     }
 
-    document.addEventListener(event, handleKeyDown)
-    return () => document.removeEventListener(event, handleKeyDown)
-  }, [event, key, handler, options])
+    document.addEventListener(keyType, handleKeyDown)
+    return () => document.removeEventListener(keyType, handleKeyDown)
+  }, [key, handler, options])
 }
