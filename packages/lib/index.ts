@@ -1,2 +1,2 @@
-export * from './hooks/useKeyboard'
-export * from './utils/random'
+export * from './hooks'
+export * from './utils'
