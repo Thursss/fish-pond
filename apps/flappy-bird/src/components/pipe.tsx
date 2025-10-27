@@ -2,8 +2,9 @@ import { randomBetween } from '@fish-pond/lib'
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 interface BirdProps {
-  handleMove: (y: number, pipes: any[]) => void
+  start: boolean
   isRunning: boolean
+  handleMove: (y: number, pipes: any[]) => void
 }
 interface PipeProps {
   index: number
@@ -12,7 +13,7 @@ interface PipeProps {
   aisle: number
 }
 
-export default function Pipe({ handleMove, isRunning }: BirdProps) {
+export default function Pipe({ start, handleMove, isRunning }: BirdProps) {
   const pipeRef = useRef<HTMLDivElement>(null)
   const pipeVY = useRef(-2)
   const pipesY = useRef(0)
@@ -54,11 +55,16 @@ export default function Pipe({ handleMove, isRunning }: BirdProps) {
   }, [isRunning, handleMove])
 
   useLayoutEffect(() => {
-    requestId.current = requestAnimationFrame(movePipe)
+    if (start) {
+      requestId.current = requestAnimationFrame(movePipe)
+    }
+    else {
+      cancelAnimationFrame(requestId.current!)
+    }
     return () => {
       cancelAnimationFrame(requestId.current!)
     }
-  })
+  }, [start, movePipe])
 
   return (
     <div ref={pipeRef} className="pipe-group">

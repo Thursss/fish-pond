@@ -78,12 +78,12 @@ importers:
       '@fish-pond/lib':
         specifier: workspace:*
         version: link:../../packages/lib
-      react:
-        specifier: ^19.1.0
-        version: 19.1.1
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.1.1(react@19.1.1)
+
+  apps/snake-game:
+    dependencies:
+      '@fish-pond/lib':
+        specifier: workspace:*
+        version: link:../../packages/lib
 
   packages/lib: {}
 

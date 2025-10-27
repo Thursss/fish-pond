@@ -3,6 +3,8 @@ import Bird from './bird'
 import Pipe from './pipe'
 
 export default function Game() {
+  const [start, setStart] = useState(false)
+
   const [isRunning, setIsRunning] = useState(true)
   const [score, setScore] = useState(0)
 
@@ -29,6 +31,7 @@ export default function Game() {
     })
     if (isDie) {
       setIsRunning(false)
+      setStart(false)
     }
     setScore(absX)
   }
@@ -38,18 +41,29 @@ export default function Game() {
     birdY.current = y
     if (y > height.current - 20) {
       setIsRunning(false)
+      setStart(false)
     }
   }
 
   return (
     <div className="game-container">
+      { !start && (
+        <div className="start-button">
+          <span onClick={() => {
+            setStart(!start)
+          }}
+          >
+            开始
+          </span>
+        </div>
+      )}
       <div className="score">
         得分：
         {score}
       </div>
       <div ref={gameRef} className="game">
-        <Pipe isRunning={isRunning} handleMove={handlePipeMove} />
-        <Bird isRunning={isRunning} handleMove={handleBirdMove} />
+        <Pipe start={start} isRunning={isRunning} handleMove={handlePipeMove} />
+        <Bird start={start} isRunning={isRunning} handleMove={handleBirdMove} />
       </div>
     </div>
   )

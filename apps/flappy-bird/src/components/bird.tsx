@@ -1,12 +1,13 @@
-import { useKeyboard } from '@fish-pond/lib'
+import { useKeyboard } from '@fish-pond/lib/hooks'
 import { memo, useCallback, useLayoutEffect, useRef } from 'react'
 
 interface BirdProps {
   handleMove: (y: number) => void
   isRunning: boolean
+  start: boolean
 }
 
-function Bird({ handleMove, isRunning }: BirdProps) {
+function Bird({ handleMove, isRunning, start }: BirdProps) {
   const birdRef = useRef<HTMLDivElement>(null)
   const birdVy = useRef(1.5)
   const birdY = useRef(0)
@@ -28,11 +29,16 @@ function Bird({ handleMove, isRunning }: BirdProps) {
   }, [isRunning, handleMove])
 
   useLayoutEffect(() => {
-    requestId.current = requestAnimationFrame(moveBird)
+    if (start) {
+      requestId.current = requestAnimationFrame(moveBird)
+    }
+    else {
+      cancelAnimationFrame(requestId.current!)
+    }
     return () => {
       cancelAnimationFrame(requestId.current!)
     }
-  }, [isRunning, moveBird])
+  }, [isRunning, moveBird, start])
 
   useKeyboard('Space', () => {
     birdVy.current = -2

@@ -28,9 +28,9 @@ function findHtmlInSecondLevel(root: string) {
     }
   }
 
-  console.log('🚀 ~ findHtmlInSecondLevel ~ result:', input)
   return input
 }
+
 export default defineConfig({
   server: {
     port: 4000,

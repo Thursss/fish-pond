@@ -1,11 +1,12 @@
 {
-  "name": "@fish-pond/flappy-bird",
+  "name": "@fish-pond/snake-game",
   "version": "1.0.0",
   "packageManager": "pnpm@10.15.0",
   "description": "",
   "author": "",
   "license": "ISC",
   "keywords": [],
+  "main": "index.js",
   "scripts": {},
   "dependencies": {
     "@fish-pond/lib": "workspace:*"
