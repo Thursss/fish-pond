@@ -17,6 +17,7 @@ export default antfu({
     }],
     'ts/ban-ts-comment': 'off',
     // 其他规则
+    'no-console': 'warn',
   },
   // 忽略文件
   ignores: [

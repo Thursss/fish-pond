@@ -1,0 +1,16 @@
+{
+  "name": "@fish-pond/scheduler",
+  "type": "module",
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.15.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "exports": {
+    ".": "./index.ts",
+    "./scheduler": "./scheduler.ts",
+    "./upload-manager": "./upload-manager.ts"
+  },
+  "scripts": {}
+}

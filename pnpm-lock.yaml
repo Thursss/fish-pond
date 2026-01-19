@@ -85,7 +85,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/lib
 
+  apps/test:
+    dependencies:
+      '@fish-pond/scheduler':
+        specifier: workspace:*
+        version: link:../../packages/scheduler
+
   packages/lib: {}
+
+  packages/scheduler: {}
 
 packages:
 
