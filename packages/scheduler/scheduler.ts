@@ -64,7 +64,7 @@ class Scheduler<T> {
     }
   }
 
-  // ========== process ==========
+  // ========== 任务管理 ==========
   registerExecutor(taskType: string, executor: any): void {
     this.taskExecutors.set(taskType, executor)
   }
@@ -72,11 +72,13 @@ class Scheduler<T> {
   addTask(taskType: string, items: any[], options?: TaskOptions): string {
     const taskId = options?.id || this.generateTaskId(taskType)
 
+    // 检查队列是否已满
     if (this.config.maxQueueSize) {
       const queueSize = Array.from(this.queue.values()).reduce(
-        (acc, task) => acc + task.subtasks.length,
+        (acc, task) => acc + task.subtasks?.length || 0,
         0,
-      )
+      ) + items.length
+
       if (queueSize >= this.config.maxQueueSize) {
         this.emit('queue:full')
         throw new Error('Queue is full')
@@ -111,13 +113,12 @@ class Scheduler<T> {
   }
 
   addTasks(taskType: string, items: any[], options?: TaskOptions): string[] {
-    // Replace 'any' with a more specific type if known
     return items.map(item => this.addTask(taskType, item, options))
   }
 
   processQueue(): void {}
 
-  // ========== emitEvents ==========
+  // ========== 事件系统 ==========
   emit(event: string, ...args: any[]): void {
     console.log(`[Scheduler] ${event}`, ...args)
   }

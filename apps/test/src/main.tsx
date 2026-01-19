@@ -2,5 +2,7 @@ import { Scheduler } from '@fish-pond/scheduler'
 
 const scheduler = new Scheduler({
   maxTaskConcurrent: 3,
+  maxQueueSize: 100,
 })
-console.log('🚀 ~ scheduler:', scheduler)
+
+scheduler.addTask('', [1, 2])
