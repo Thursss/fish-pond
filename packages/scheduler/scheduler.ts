@@ -2,21 +2,37 @@ interface TaskOptions {
   id?: string
   maxRetries?: number
 }
+const enum SubtaskStatus {
+  Pending = 'pending',
+  Running = 'running',
+  Paused = 'paused',
+  Completed = 'completed',
+  Failed = 'failed',
+  Cancelled = 'cancelled',
+}
 
-interface Subtask {
-  data: any
-  status: 'pending' | 'completed' | 'failed'
+interface Subtask<T> {
+  data: T
+  status: SubtaskStatus
   retries: number
   maxRetries: number
   createdAt: number
   updatedAt: number
 }
 
-interface Task {
+const enum TaskStatus {
+  Pending = 'pending',
+  Running = 'running',
+  Paused = 'paused',
+  Completed = 'completed',
+  Failed = 'failed',
+  Cancelled = 'cancelled',
+}
+interface Task<T> {
   id: string
   type: string
-  subtasks: Subtask[]
-  status: 'pending' | 'completed' | 'failed'
+  subtasks: Subtask<T>[]
+  status: TaskStatus
   createdAt: number
   updatedAt: number
 }
@@ -30,8 +46,8 @@ interface SchedulerConfig {
   priorityEnabled?: boolean
 }
 
-class Scheduler {
-  private queue: Map<string, Task>
+class Scheduler<T> {
+  private queue: Map<string, Task<T>>
   private taskExecutors: Map<string, any>
   private config: SchedulerConfig
 
@@ -48,13 +64,12 @@ class Scheduler {
     }
   }
 
+  // ========== process ==========
   registerExecutor(taskType: string, executor: any): void {
-    // Replace Function with a more specific type if known
     this.taskExecutors.set(taskType, executor)
   }
 
   addTask(taskType: string, items: any[], options?: TaskOptions): string {
-    // Replace 'any' with a more specific type if known
     const taskId = options?.id || this.generateTaskId(taskType)
 
     if (this.config.maxQueueSize) {
@@ -68,20 +83,20 @@ class Scheduler {
       }
     }
 
-    const subtasks = items.map(data => ({
+    const subtasks: Subtask<T>[] = items.map(data => ({
       data,
-      status: 'pending' as const,
+      status: SubtaskStatus.Pending,
       retries: 0,
       maxRetries: options?.maxRetries || 3,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }))
 
-    const task = {
+    const task: Task<T> = {
       id: taskId,
       type: taskType,
       subtasks,
-      status: 'pending' as const,
+      status: TaskStatus.Pending,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }
@@ -102,8 +117,8 @@ class Scheduler {
 
   processQueue(): void {}
 
+  // ========== emitEvents ==========
   emit(event: string, ...args: any[]): void {
-    // Replace 'any' with a more specific type if known
     console.log(`[Scheduler] ${event}`, ...args)
   }
 
