@@ -9,8 +9,11 @@
   "keywords": [],
   "exports": {
     ".": "./index.ts",
+    "./event-bus": "./event-bus.ts",
+    "./semaphore.ts": "./semaphore.ts",
     "./scheduler": "./scheduler.ts",
-    "./upload-manager": "./upload-manager.ts"
+    "./upload-manager": "./upload-manager.ts",
+    "./test/*": "./test/*"
   },
   "scripts": {}
 }
