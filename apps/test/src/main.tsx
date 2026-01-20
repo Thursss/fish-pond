@@ -1,9 +1,11 @@
 import { Scheduler } from '@fish-pond/scheduler'
 
-const tasks = Array.from({ length: 1000 }).fill(0).map((_, i) => ({
-  file: new File([`${i}`], `${i}.txt`),
-  progress: 0,
-}))
+function genTasks(c: number = 5, r: number = 5) {
+  return Array.from({ length: c + Math.ceil(Math.random() * r) }).fill(0).map((_, i) => ({
+    file: new File([`${i}`], `${i}.txt`),
+    progress: 0,
+  }))
+}
 
 const scheduler = new Scheduler<{
   uploadId?: string
@@ -15,10 +17,10 @@ const scheduler = new Scheduler<{
   // autoStart: false,
 })
 
-scheduler.addQueue('upload-file', tasks, {
+scheduler.addQueue('up1', genTasks(117, 0), {
   priority: 1,
 })
-scheduler.addQueue('upload-file', tasks, {
-  priority: 3,
+scheduler.addQueue('up2', genTasks(113, 0), {
+  priority: 1,
 })
-scheduler.addQueues('upload-file', [tasks, tasks])
+scheduler.addQueues('up3', [genTasks(15, 0), genTasks(3, 0)])
