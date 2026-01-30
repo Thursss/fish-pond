@@ -16,7 +16,11 @@ const scheduler = new Scheduler<{
   // maxTaskConcurrent: 6,
   // autoStart: false,
 })
-scheduler.registerExecutor('up1', async (data) => {
+scheduler.registerExecutor('up1', async (data, c) => {
+  c.updateTaskData({
+    progress: 0,
+    uploadId: '123',
+  })
   await new Promise<void>((resolve) => {
     setTimeout(() => {
       console.log('🚀 ~ data:', data)

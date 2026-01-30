@@ -514,7 +514,10 @@ class Scheduler<T> {
       task.data = { ...task.data, ...data }
     }
     else {
-      task.data = data as T
+      task.data = {
+        ...task.data,
+        ...data,
+      }
     }
     this.emit('task:dataUpdated', queueId, task.data, task)
   }
