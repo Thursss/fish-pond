@@ -38,7 +38,10 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: findHtmlInSecondLevel(resolve(__dirname, 'apps')),
+      input: {
+        ...findHtmlInSecondLevel(resolve(__dirname, 'apps')),
+        ...findHtmlInSecondLevel(resolve(__dirname, 'demos')),
+      },
     },
   },
 })

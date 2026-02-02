@@ -1,0 +1,12 @@
+{
+  "name": "@fish-pond/ast",
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.15.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
