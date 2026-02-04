@@ -23,5 +23,6 @@
     "skipLibCheck": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["apps/**/src/**/*", "demos/**/src/**/*"]
+  "include": ["apps/**/*", "demos/**/*", "packages/**/*"],
+  "exclude": ["**/node_modules/**"]
 }

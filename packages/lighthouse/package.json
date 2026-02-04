@@ -1,0 +1,25 @@
+{
+  "name": "@fish-pond/lighthouse",
+  "version": "1.0.0",
+  "description": "A comprehensive monitoring SDK for web applications",
+  "author": "",
+  "license": "MIT",
+  "keywords": [
+    "monitoring",
+    "performance",
+    "error",
+    "analytics"
+  ],
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --outDir ./dist --rootDir ./src --declaration --declarationMap --sourceMap --emit",
+    "dev": "tsc --outDir ./dist --rootDir ./src --declaration --declarationMap --sourceMap --emit --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
