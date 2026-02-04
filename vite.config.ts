@@ -34,7 +34,7 @@ function findHtmlInSecondLevel(root: string) {
 export default defineConfig({
   server: {
     port: 4000,
-    open: '/apps/flappy-bird/index.html',
+    open: '/demos/lighthouse-test/index.html',
   },
   build: {
     rollupOptions: {

@@ -11,7 +11,10 @@
     "analytics"
   ],
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./performance": "./src/performance/index.ts",
+    "./error": "./src/error/index.ts",
+    "./behavior": "./src/behavior/index.ts"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

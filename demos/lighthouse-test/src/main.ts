@@ -1,7 +1,7 @@
-import { init } from '@fish-pond/lighthouse'
+import { PerformanceMonitor } from '@fish-pond/lighthouse/performance'
 
 // 初始化 Lighthouse 监控 SDK
-const lighthouse = init({
+const lighthouse = new PerformanceMonitor({
   appId: 'test-app-id',
   // 不配置 uploadUrl，数据将打印到控制台
   enablePerformance: true,
@@ -14,5 +14,4 @@ const lighthouse = init({
   },
 })
 
-// 启动监控
-lighthouse.start()
+lighthouse.init()
