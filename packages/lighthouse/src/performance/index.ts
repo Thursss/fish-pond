@@ -1,5 +1,8 @@
 import { observeFCP } from './loading/fcp.js'
 import { observeFP } from './loading/fp.js'
+import { observeLCP } from './loading/lcp.js'
+import { observeLoad } from './loading/load.js'
+import { createSender } from './report/sender.js'
 
 export class PerformanceMonitor {
   private options
@@ -11,13 +14,11 @@ export class PerformanceMonitor {
   }
 
   init() {
-    observeFP((metric) => {
-      if (this.options?.log)
-        console.log('[PerformanceMonitor] FP:', metric)
-    })
-    observeFCP((metric) => {
-      if (this.options?.log)
-        console.log('[PerformanceMonitor] FCP:', metric)
-    })
+    const report = createSender(this.options)
+
+    observeFP(report)
+    observeFCP(report)
+    observeLCP(report)
+    observeLoad(report)
   }
 }
