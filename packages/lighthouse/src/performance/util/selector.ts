@@ -1,4 +1,4 @@
-export function getSelector(el: Element): string {
+export function getSelector(el: Element | Node): string {
   if (!(el instanceof Element))
     return ''
 

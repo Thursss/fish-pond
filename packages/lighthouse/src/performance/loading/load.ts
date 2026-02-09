@@ -1,3 +1,5 @@
+import { reportOnHiddenOrInteract } from '../util/on-visibility'
+
 export interface LoadMetric {
   type: 'performance'
   subType: 'LOAD'
@@ -78,9 +80,7 @@ export function observeLoad(report: LoadReporter): () => void {
     return () => {}
   }
 
-  window.addEventListener('pageshow', reportIfReady, { once: true, capture: true })
+  const cleanupVisibility = reportOnHiddenOrInteract(reportIfReady, { eventNames: ['pageshow'], options: true })
 
-  return () => {
-    window.removeEventListener('pageshow', reportIfReady, true)
-  }
+  return () => cleanupVisibility()
 }

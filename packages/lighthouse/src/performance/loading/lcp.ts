@@ -1,5 +1,5 @@
-import { reportOnHiddenOrInteract } from '../util/on-visibility.js'
-import { getSelector } from '../util/selector.js'
+import { reportOnHiddenOrInteract } from '../util/on-visibility'
+import { getSelector } from '../util/selector'
 
 export interface LcpMetric {
   type: 'performance'
@@ -66,7 +66,7 @@ export function observeLCP(report: LcpReporter): () => void {
 
     // LCP指标只需在页面生命周期结束时上报一次，上报后断开观察器
     obs.disconnect()
-  })
+  }, { eventNames: ['visibilitychange', 'click', 'keydown', 'pointerdown'], options: { once: true, capture: true } })
 
   // 返回清理函数，允许外部手动停止监控
   return () => {
