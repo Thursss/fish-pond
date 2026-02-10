@@ -1,4 +1,4 @@
-import type { ErrorContext, ErrorReporter, JsErrorMetric, PromiseErrorMetric } from './shared'
+import type { ErrorReporter, JsErrorMetric, PromiseErrorMetric } from './shared'
 import { buildErrorBase } from './shared'
 
 interface NormalizedError {

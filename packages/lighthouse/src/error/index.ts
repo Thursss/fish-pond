@@ -26,12 +26,6 @@ export class ErrorMonitor {
       appId: this.options.appId,
       environment: this.options.environment,
     })
-    const context: Omit<ErrorMonitorOptions, keyof SenderOptions | 'ignoreUrls'> = {
-      appName: this.options.appName,
-      appVersion: this.options.appVersion,
-      appId: this.options.appId,
-      environment: this.options.environment,
-    }
 
     const baseIgnoreUrls: Array<string | RegExp> = []
     if (this.options.ignoreUrls)
@@ -43,7 +37,6 @@ export class ErrorMonitor {
     this.cleanups.push(
       monitorJavaScriptErrors(report),
       monitorNetworkErrors(report, {
-        ...context,
         ignoreUrls: baseIgnoreUrls,
       }),
       monitorResourceErrors(report),

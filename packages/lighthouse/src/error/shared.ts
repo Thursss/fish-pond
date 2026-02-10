@@ -1,13 +1,8 @@
+import type { SenderBase } from '../utils/report/sender'
+
 export type ErrorSubType = 'js' | 'promise' | 'resource' | 'network'
 
-export interface ErrorContext {
-  appName?: string
-  appVersion?: string
-  appId?: string
-  environment?: string
-}
-
-export interface ErrorBaseMetric extends ErrorContext {
+export interface ErrorBaseMetric extends SenderBase {
   type: 'error'
   subType: ErrorSubType
   pageUrl: string

@@ -18,11 +18,5 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc --outDir ./dist --rootDir ./src --declaration --declarationMap --sourceMap --emit",
-    "dev": "tsc --outDir ./dist --rootDir ./src --declaration --declarationMap --sourceMap --emit --watch"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.0"
-  }
+  "scripts": {}
 }

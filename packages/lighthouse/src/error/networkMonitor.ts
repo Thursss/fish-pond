@@ -1,7 +1,8 @@
-import type { ErrorContext, ErrorReporter, NetworkErrorMetric } from './shared'
+import type { SenderBase } from '../utils/report/sender'
+import type { ErrorReporter, NetworkErrorMetric } from './shared'
 import { buildErrorBase, getFetchMethod, getFetchUrl, now, resolveUrl, shouldIgnoreUrl } from './shared'
 
-export interface NetworkMonitorOptions extends ErrorContext {
+export interface NetworkMonitorOptions extends SenderBase {
   ignoreUrls?: Array<string | RegExp>
 }
 

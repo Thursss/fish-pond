@@ -21,7 +21,7 @@ export function createSender(options: SenderOptions = {}, base: SenderBase = {})
   return (data: any) => {
     const reData = { ...base, ...data }
     if (log)
-      console.log('[PerformanceMonitor] log: ', reData)
+      console.log('🚀 [PerformanceMonitor] log: ', reData)
 
     if (typeof window === 'undefined')
       return
