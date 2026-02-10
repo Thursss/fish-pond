@@ -1,3 +1,10 @@
+export interface SenderBase {
+  appName?: string
+  appVersion?: string
+  appId?: string
+  environment?: string
+}
+
 export interface SenderOptions {
   reportUrl?: string
   log?: boolean
@@ -6,14 +13,15 @@ export interface SenderOptions {
 
 export type Reporter = (data: unknown) => void
 
-export function createSender(options: SenderOptions = {}): Reporter {
+export function createSender(options: SenderOptions = {}, base: SenderBase = {}): Reporter {
   const reportUrl = options.reportUrl
   const log = options.log ?? true
   const headers = options.headers ?? {}
 
-  return (data: unknown) => {
+  return (data: any) => {
+    const reData = { ...base, ...data }
     if (log)
-      console.log('[PerformanceMonitor] log: ', data)
+      console.log('[PerformanceMonitor] log: ', reData)
 
     if (typeof window === 'undefined')
       return
@@ -21,7 +29,7 @@ export function createSender(options: SenderOptions = {}): Reporter {
     if (!reportUrl)
       return
 
-    const payload = JSON.stringify(data)
+    const payload = JSON.stringify(reData)
     const blob = new Blob([payload], { type: 'application/json' })
 
     if (navigator.sendBeacon?.(reportUrl, blob))

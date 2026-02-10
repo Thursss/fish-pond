@@ -1,9 +1,11 @@
-import { PerformanceMonitor } from '@fish-pond/lighthouse/performance'
+import { initErrorMonitor } from '@fish-pond/lighthouse/error'
+import initPerformanceMonitor from '@fish-pond/lighthouse/performance'
 
 // 初始化 Lighthouse 监控 SDK
-const lighthouse = new PerformanceMonitor({
+initPerformanceMonitor({
+  appVersion: '1.0.0',
+  appName: 'test-app',
   appId: 'test-app-id',
-  reportUrl: 'http://localhost:3000/monitor',
   // 不配置 uploadUrl，数据将打印到控制台
   request: {
     ignoreUrls: [
@@ -12,4 +14,8 @@ const lighthouse = new PerformanceMonitor({
   },
 })
 
-lighthouse.init()
+initErrorMonitor({
+  appVersion: '1.0.0',
+  appName: 'test-app',
+  appId: 'test-app-id',
+})

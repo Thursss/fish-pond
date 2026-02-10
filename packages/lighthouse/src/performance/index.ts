@@ -1,4 +1,4 @@
-import type { SenderOptions } from '../utils/report/sender'
+import type { SenderBase, SenderOptions } from '../utils/report/sender'
 import type { RequestObserverOptions } from './network/request'
 import type { ResourceObserverOptions } from './network/resource'
 import { createSender } from '../utils/report/sender'
@@ -14,8 +14,7 @@ import { observeRequest } from './network/request'
 import { observeResource } from './network/resource'
 import { observeCLS } from './visual-stability/cls'
 
-export interface PerformanceMonitorOptions extends SenderOptions {
-  appId: string
+export interface PerformanceMonitorOptions extends SenderOptions, SenderBase {
   ignoreUrls?: Array<string | RegExp>
   request?: RequestObserverOptions
   resource?: ResourceObserverOptions
@@ -24,14 +23,20 @@ export interface PerformanceMonitorOptions extends SenderOptions {
 export class PerformanceMonitor {
   private options: PerformanceMonitorOptions
   constructor(options: PerformanceMonitorOptions) {
-    this.options = { ...{
+    this.options = {
       /** default options */
       log: true,
-    }, ...options }
+      ...options,
+    }
   }
 
   init() {
-    const report = createSender(this.options)
+    const report = createSender(this.options, {
+      appName: this.options.appName,
+      appVersion: this.options.appVersion,
+      appId: this.options.appId,
+      environment: this.options.environment,
+    })
 
     observeFP(report)
     observeFCP(report)
@@ -81,4 +86,10 @@ export class PerformanceMonitor {
     // 启动视觉稳定性监控：累积布局偏移
     observeCLS(report)
   }
+}
+
+export default function initPerformanceMonitor(options: PerformanceMonitorOptions) {
+  const monitor = new PerformanceMonitor(options)
+  monitor.init()
+  return monitor
 }
