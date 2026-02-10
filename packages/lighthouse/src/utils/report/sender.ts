@@ -13,7 +13,7 @@ export function createSender(options: SenderOptions = {}): Reporter {
 
   return (data: unknown) => {
     if (log)
-      console.log('[PerformanceMonitor] report:', data)
+      console.log('[PerformanceMonitor] log: ', data)
 
     if (typeof window === 'undefined')
       return

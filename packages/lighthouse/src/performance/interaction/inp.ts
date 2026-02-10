@@ -1,4 +1,4 @@
-import { getSelector } from '../util/selector'
+import { getSelector } from '../../utils/selector'
 
 export interface InpMetric {
   type: 'interaction'

@@ -1,5 +1,5 @@
-import { reportOnHiddenOrInteract } from '../util/on-visibility'
-import { getSelector } from '../util/selector'
+import { reportOnHiddenOrInteract } from '../../utils/on-visibility'
+import { getSelector } from '../../utils/selector'
 
 export interface LcpMetric {
   type: 'performance'
