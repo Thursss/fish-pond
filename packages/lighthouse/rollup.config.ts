@@ -56,12 +56,16 @@ const sharedPlugins = [
   commonjs(),
   typescript({
     tsconfig: path.resolve(__dirname, '../../tsconfig.app.json'),
-    noEmit: false,
-    declaration: true,
-    declarationMap: true,
-    allowImportingTsExtensions: false,
-    rootDir: path.resolve(__dirname, 'src'),
-    outDir: path.resolve(__dirname, 'dist'),
+    tsconfigOverride: {
+      compilerOptions: {
+        noEmit: false,
+        declaration: true,
+        declarationMap: true,
+        allowImportingTsExtensions: false,
+        rootDir: path.resolve(__dirname, 'src'),
+        outDir: path.resolve(__dirname, 'dist'),
+      },
+    },
   }),
 ]
 

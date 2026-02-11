@@ -1,4 +1,4 @@
-import type { SenderBase, SenderOptions } from '../utils/report/sender'
+import type { SenderCustom, SenderOptions } from '../utils/report/sender'
 import type { RequestObserverOptions } from './network/request'
 import type { ResourceObserverOptions } from './network/resource'
 import { createSender } from '../utils/report/sender'
@@ -14,10 +14,12 @@ import { observeRequest } from './network/request'
 import { observeResource } from './network/resource'
 import { observeCLS } from './visual-stability/cls'
 
-export interface PerformanceMonitorOptions extends SenderOptions, SenderBase {
+export interface PerformanceMonitorOptions extends SenderOptions {
   ignoreUrls?: Array<string | RegExp>
+  sampleRate?: Record<string, number>
   request?: RequestObserverOptions
   resource?: ResourceObserverOptions
+  custom?: SenderCustom
 }
 
 export class PerformanceMonitor {
@@ -31,12 +33,7 @@ export class PerformanceMonitor {
   }
 
   init() {
-    const report = createSender(this.options, {
-      appName: this.options.appName,
-      appVersion: this.options.appVersion,
-      appId: this.options.appId,
-      environment: this.options.environment,
-    })
+    const report = createSender(this.options, this.options.custom)
 
     observeFP(report)
     observeFCP(report)

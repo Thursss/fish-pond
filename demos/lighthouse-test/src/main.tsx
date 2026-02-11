@@ -1,4 +1,4 @@
-import { initErrorMonitor } from '@fish-pond/lighthouse/error'
+import initErrorMonitor from '@fish-pond/lighthouse/error'
 import initPerformanceMonitor from '@fish-pond/lighthouse/performance'
 
 import { createRoot } from 'react-dom/client'

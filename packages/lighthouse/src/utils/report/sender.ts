@@ -1,8 +1,9 @@
-export interface SenderBase {
+export interface SenderCustom {
   appName?: string
   appVersion?: string
   appId?: string
   environment?: string
+  [key: string]: any
 }
 
 export interface SenderOptions {
@@ -13,7 +14,7 @@ export interface SenderOptions {
 
 export type Reporter = (data: unknown) => void
 
-export function createSender(options: SenderOptions = {}, base: SenderBase = {}): Reporter {
+export function createSender(options: SenderOptions = {}, base: SenderCustom = {}): Reporter {
   const reportUrl = options.reportUrl
   const log = options.log ?? true
   const headers = options.headers ?? {}
@@ -21,7 +22,7 @@ export function createSender(options: SenderOptions = {}, base: SenderBase = {})
   return (data: any) => {
     const reData = { ...base, ...data }
     if (log)
-      console.log('🚀 [PerformanceMonitor] log: ', reData)
+      console.log('🚀 [PerformanceMonitor] log: ', data)
 
     if (typeof window === 'undefined')
       return

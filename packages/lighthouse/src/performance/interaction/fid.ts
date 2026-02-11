@@ -3,7 +3,7 @@ export interface FidMetric {
   subType: 'FID'
   pageUrl: string
   value: number
-  startTime: number
+  delay: number
   entry: PerformanceEntry
 }
 
@@ -19,12 +19,13 @@ export function observeFID(report: FidReporter): () => void {
   const obs = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       const fid = (entry as PerformanceEventTiming).processingStart - entry.startTime
+      const delay = (entry as PerformanceEventTiming).startTime - (entry as PerformanceEventTiming).processingStart
       report({
         type: 'interaction',
         subType: 'FID',
         pageUrl: location.href,
+        delay,
         value: fid,
-        startTime: entry.startTime,
         entry,
       })
       obs.disconnect()

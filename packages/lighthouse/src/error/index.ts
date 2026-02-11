@@ -1,11 +1,12 @@
-import type { SenderBase, SenderOptions } from '../utils/report/sender'
+import type { SenderCustom, SenderOptions } from '../utils/report/sender'
 import { createSender } from '../utils/report/sender'
 import { monitorJavaScriptErrors } from './errorHandler'
 import { monitorNetworkErrors } from './networkMonitor'
 import { monitorResourceErrors } from './resourceMonitor'
 
-export interface ErrorMonitorOptions extends SenderOptions, SenderBase {
+export interface ErrorMonitorOptions extends SenderOptions {
   ignoreUrls?: Array<string | RegExp>
+  custom?: SenderCustom
 }
 
 export class ErrorMonitor {
@@ -20,12 +21,7 @@ export class ErrorMonitor {
   }
 
   init() {
-    const report = createSender(this.options, {
-      appName: this.options.appName,
-      appVersion: this.options.appVersion,
-      appId: this.options.appId,
-      environment: this.options.environment,
-    })
+    const report = createSender(this.options, this.options.custom)
 
     const baseIgnoreUrls: Array<string | RegExp> = []
     if (this.options.ignoreUrls)
@@ -51,7 +47,7 @@ export class ErrorMonitor {
   }
 }
 
-export function initErrorMonitor(options: ErrorMonitorOptions): ErrorMonitor {
+export default function initErrorMonitor(options: ErrorMonitorOptions): ErrorMonitor {
   const monitor = new ErrorMonitor(options)
   monitor.init()
   return monitor

@@ -1,8 +1,8 @@
-import type { SenderBase } from '../utils/report/sender'
+import type { SenderCustom } from '../utils/report/sender'
 
 export type ErrorSubType = 'js' | 'promise' | 'resource' | 'network'
 
-export interface ErrorBaseMetric extends SenderBase {
+export interface ErrorBaseMetric extends SenderCustom {
   type: 'error'
   subType: ErrorSubType
   pageUrl: string

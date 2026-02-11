@@ -7,7 +7,8 @@ export interface LongTaskAttribution {
 }
 
 export interface LongTaskMetric {
-  type: 'longtask'
+  type: 'interaction'
+  subType: 'LONG_TASK'
   pageUrl: string
   startTime: number
   duration: number
@@ -32,7 +33,8 @@ export function observeLongTask(report: LongTaskReporter): () => void {
       const attribution = (entry as any).attribution as Array<any> | undefined
 
       report({
-        type: 'longtask',
+        type: 'interaction',
+        subType: 'LONG_TASK',
         pageUrl: location.href,
         startTime: entry.startTime,
         duration: entry.duration,
