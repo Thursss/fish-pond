@@ -57,7 +57,7 @@ performance-monitor/
 │ │ ├── sender.ts # beacon / fetch 实现
 │ │ └── sampler.ts # 采样器
 │ ├── util/
-│ │ ├── selector.ts # getSelector
+│ │ ├── get.ts # getSelector
 │ │ ├── uuid.ts
 │ │ ├── on-visibility.ts # visibilitychange 工具
 │ │ └── device.ts # ua / screen / networkInfo
@@ -98,7 +98,7 @@ export function observePaint() {
 ```ts
 import { reportOnHiddenOrInteract } from '../util/on-visibility'
 // loading/lcp.ts
-import { getSelector } from '../util/selector'
+import { getSelector } from '../util/get'
 
 let candidate: PerformanceLargestContentfulPaint | null = null
 

@@ -1,6 +1,8 @@
 import type { SenderCustom } from '../utils/report/sender'
 import type { ErrorReporter, NetworkErrorMetric } from './shared'
-import { buildErrorBase, getFetchMethod, getFetchUrl, now, resolveUrl, shouldIgnoreUrl } from './shared'
+import { getFetchMethod, getFetchUrl } from '../utils/get'
+import { shouldIgnoreUrl } from '../utils/report/sampler'
+import { buildErrorBase, now, resolveUrl } from './shared'
 
 export interface NetworkMonitorOptions extends SenderCustom {
   ignoreUrls?: Array<string | RegExp>

@@ -1,5 +1,5 @@
 import type { BehaviorEventReporter, ExposureMetric } from './shared'
-import { getSelector } from '../utils/selector'
+import { getSelector } from '../utils/get'
 import { buildBehaviorBase } from './shared'
 
 export interface ExposureObserverOptions {
@@ -16,7 +16,7 @@ export function observeExposure(report: BehaviorEventReporter, options: Exposure
   if (typeof IntersectionObserver === 'undefined')
     return () => {}
 
-  const selector = options.selector ?? '[data-expose]'
+  const selector = options.selector ?? '[data-track-expose]'
   const targets = Array.from(document.querySelectorAll(selector))
   if (targets.length === 0)
     return () => {}

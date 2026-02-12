@@ -1,4 +1,5 @@
 import type { SenderCustom } from '../utils/report/sender'
+import { getUserAgent } from '../utils/get'
 
 export type ErrorSubType = 'js' | 'promise' | 'resource' | 'network'
 
@@ -58,21 +59,8 @@ export function buildErrorBase(subType: ErrorSubType): ErrorBaseMetric {
     subType,
     pageUrl,
     timestamp: Date.now(),
-    userAgent: navigator?.userAgent || 'undefined',
+    userAgent: getUserAgent(),
   }
-}
-
-export function shouldIgnoreUrl(url: string, ignoreUrls?: Array<string | RegExp>): boolean {
-  if (!ignoreUrls || ignoreUrls.length === 0)
-    return false
-
-  return ignoreUrls.some((pattern) => {
-    if (typeof pattern === 'string')
-      return url.includes(pattern)
-
-    pattern.lastIndex = 0
-    return pattern.test(url)
-  })
 }
 
 export function resolveUrl(url: string): string {
@@ -92,46 +80,4 @@ export function now(): number {
     return performance.now()
 
   return Date.now()
-}
-
-export function getFetchUrl(input: RequestInfo | URL): string {
-  if (typeof input === 'string')
-    return input
-
-  if (input instanceof URL)
-    return input.toString()
-
-  if (typeof Request !== 'undefined' && input instanceof Request)
-    return input.url
-
-  return String(input)
-}
-
-export function getFetchMethod(input: RequestInfo | URL, init?: RequestInit): string {
-  if (init?.method)
-    return init.method.toUpperCase()
-
-  if (typeof Request !== 'undefined' && input instanceof Request)
-    return input.method.toUpperCase()
-
-  return 'GET'
-}
-
-export function getResourceUrl(target: HTMLElement): string | undefined {
-  if (target instanceof HTMLImageElement)
-    return target.currentSrc || target.src || undefined
-
-  if (target instanceof HTMLScriptElement)
-    return target.src || undefined
-
-  if (target instanceof HTMLLinkElement)
-    return target.href || undefined
-
-  if (target instanceof HTMLAudioElement || target instanceof HTMLVideoElement)
-    return target.currentSrc || target.src || undefined
-
-  if (target instanceof HTMLSourceElement)
-    return target.src || undefined
-
-  return undefined
 }

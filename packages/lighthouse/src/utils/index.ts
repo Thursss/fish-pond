@@ -1,20 +1,59 @@
-export function onUrlChange(cb: () => void) {
-  // 1. 监听浏览器前进/后退
-  window.addEventListener('popstate', cb)
+export function throttle<T extends (...args: any[]) => void>(fn: T, wait: number): T {
+  let lastCall = 0
+  let timer: number | undefined
 
-  // 2. 劫持 pushState (Vue/React 路由跳转常用)
+  const invoke = (context: any, args: any[]) => {
+    lastCall = Date.now()
+    fn.apply(context, args)
+  }
+
+  return function (this: any, ...args: any[]) {
+    const now = Date.now()
+    const remaining = wait - (now - lastCall)
+
+    if (remaining <= 0) {
+      if (timer) {
+        window.clearTimeout(timer)
+        timer = undefined
+      }
+      invoke(this, args)
+      return
+    }
+
+    if (!timer) {
+      timer = window.setTimeout(() => {
+        timer = undefined
+        invoke(this, args)
+      }, remaining)
+    }
+  } as T
+}
+
+export function observeHistory(cb: () => void): () => void {
+  if (typeof window === 'undefined')
+    return () => {}
+
+  const onPopState = () => cb()
   const originalPush = history.pushState
+  const originalReplace = history.replaceState
+
   history.pushState = function (...args) {
-    const result = originalPush.apply(this, args)
+    const result = originalPush.apply(this, args as any)
     cb()
     return result
   }
 
-  // 3. 劫持 replaceState
-  const originalReplace = history.replaceState
   history.replaceState = function (...args) {
-    const result = originalReplace.apply(this, args)
+    const result = originalReplace.apply(this, args as any)
     cb()
     return result
+  }
+
+  window.addEventListener('popstate', onPopState)
+
+  return () => {
+    history.pushState = originalPush
+    history.replaceState = originalReplace
+    window.removeEventListener('popstate', onPopState)
   }
 }

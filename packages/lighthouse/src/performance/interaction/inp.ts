@@ -1,4 +1,4 @@
-import { getSelector } from '../../utils/selector'
+import { getSelector } from '../../utils/get'
 
 export interface InpMetric {
   type: 'interaction'
@@ -38,7 +38,7 @@ export function observeINP(report: InpReporter): () => void {
         name: event.name,
         // @ts-ignore
         interactionId: event.interactionId,
-        targetSelector: event.target ? getSelector(event.target) : '',
+        targetSelector: event.target ? getSelector(event.target as Element) : '',
         entry: event,
       })
     }

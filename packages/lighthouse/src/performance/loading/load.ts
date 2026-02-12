@@ -1,4 +1,4 @@
-import { reportOnHiddenOrInteract } from '../../utils/on-visibility'
+import { reportOnHiddenOrInteract } from '../../utils/on'
 
 export interface LoadMetric {
   type: 'performance'

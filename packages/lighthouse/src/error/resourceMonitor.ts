@@ -1,6 +1,7 @@
 import type { ErrorReporter, ResourceErrorMetric } from './shared'
-import { getSelector } from '../utils/selector'
-import { buildErrorBase, getResourceUrl } from './shared'
+import { getResourceUrl, getSelector } from '../utils/get'
+import { isElement } from '../utils/is'
+import { buildErrorBase } from './shared'
 
 const RESOURCE_TAGS = new Set(['img', 'script', 'link', 'audio', 'video', 'source', 'text/plain'])
 
@@ -9,14 +10,14 @@ export function monitorResourceErrors(report: ErrorReporter): () => void {
     return () => {}
 
   const handler = (event: Event) => {
-    if (event instanceof ErrorEvent)
+    if (!isElement(event, 'ErrorEvent'))
       return
 
     const target = event.target
-    if (!(target instanceof HTMLElement))
+    if (!isElement(target, 'HTMLElement'))
       return
 
-    const tagName = target.tagName.toLowerCase()
+    const tagName = (target as HTMLElement).tagName.toLowerCase()
     if (!RESOURCE_TAGS.has(tagName))
       return
 
@@ -24,7 +25,7 @@ export function monitorResourceErrors(report: ErrorReporter): () => void {
       ...buildErrorBase('resource'),
       tagName,
       resourceUrl: getResourceUrl(target),
-      selector: getSelector(target),
+      selector: getSelector(target as HTMLElement),
     } as ResourceErrorMetric)
   }
 

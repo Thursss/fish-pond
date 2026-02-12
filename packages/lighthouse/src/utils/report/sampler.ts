@@ -5,3 +5,16 @@ export function shouldSample(rate: number): boolean {
     return false
   return Math.random() < rate
 }
+
+export function shouldIgnoreUrl(url: string, ignoreUrls?: Array<string | RegExp>): boolean {
+  if (!ignoreUrls || ignoreUrls.length === 0)
+    return false
+
+  return ignoreUrls.some((pattern) => {
+    if (typeof pattern === 'string')
+      return url.includes(pattern)
+
+    pattern.lastIndex = 0
+    return pattern.test(url)
+  })
+}

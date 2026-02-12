@@ -1,4 +1,5 @@
 import type { SenderCustom } from '../utils/report/sender'
+import { getUserAgent } from '../utils/get'
 
 export type BehaviorSubType = 'PV' | 'CLICK' | 'EXPOSURE' | 'CUSTOM' | 'SDK_HEALTH'
 
@@ -59,6 +60,6 @@ export function buildBehaviorBase(subType: BehaviorSubType): BehaviorBaseMetric 
     subType,
     pageUrl,
     timestamp: Date.now(),
-    userAgent: navigator?.userAgent || 'undefined',
+    userAgent: getUserAgent(),
   }
 }

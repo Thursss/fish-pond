@@ -1,42 +1,14 @@
 import type { BehaviorEventReporter, ClickMetric } from './shared'
-import { getSelector } from '../utils/selector'
+import { getSelector } from '../utils/get'
+import { throttle } from '../utils/index'
+import { isElement, isExist } from '../utils/is'
 import { buildBehaviorBase } from './shared'
 
 export interface ClickObserverOptions {
   throttleMs?: number
   ignoreTags?: string[]
+  datasetKeys?: string
   maxTextLength?: number
-}
-
-function throttle<T extends (...args: any[]) => void>(fn: T, wait: number): T {
-  let lastCall = 0
-  let timer: number | undefined
-
-  const invoke = (context: any, args: any[]) => {
-    lastCall = Date.now()
-    fn.apply(context, args)
-  }
-
-  return function (this: any, ...args: any[]) {
-    const now = Date.now()
-    const remaining = wait - (now - lastCall)
-
-    if (remaining <= 0) {
-      if (timer) {
-        window.clearTimeout(timer)
-        timer = undefined
-      }
-      invoke(this, args)
-      return
-    }
-
-    if (!timer) {
-      timer = window.setTimeout(() => {
-        timer = undefined
-        invoke(this, args)
-      }, remaining)
-    }
-  } as T
 }
 
 function normalizeText(text: string, maxLength: number): string {
@@ -53,22 +25,29 @@ export function observeClick(report: BehaviorEventReporter, options: ClickObserv
   const ignoreTags = new Set((options.ignoreTags ?? []).map(tag => tag.toUpperCase()))
   const throttleMs = options.throttleMs ?? 100
   const maxTextLength = options.maxTextLength ?? 120
+  const datasetKey = options.datasetKeys ?? 'trackClick'
 
   const handler = throttle((event: MouseEvent) => {
-    const target = event.target
-    if (!(target instanceof Element))
+    const path = event.composedPath()
+
+    const target = path.find(
+      node => (node as Node)?.nodeType === 1 && isExist((node as HTMLElement)?.dataset[datasetKey]),
+    ) as HTMLElement | undefined
+
+    if (!target)
       return
 
     const tagName = target.tagName.toUpperCase()
     if (ignoreTags.has(tagName))
       return
 
-    const text = target instanceof HTMLElement ? normalizeText(target.textContent || '', maxTextLength) : ''
+    const text = isElement(target, 'HTMLElement') ? normalizeText(target.textContent || '', maxTextLength) : ''
     const metric = {
       ...buildBehaviorBase('CLICK'),
       tagName,
       text: text || undefined,
       selector: getSelector(target),
+      selectorData: target.dataset[datasetKey],
     } as ClickMetric
 
     report(metric)

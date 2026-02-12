@@ -1,39 +1,11 @@
 import type { BehaviorEventReporter, PageViewMetric } from './shared'
+import { observeHistory } from '../utils/index'
 import { buildBehaviorBase } from './shared'
 
 export interface PageViewObserverOptions {
   reportOnLoad?: boolean
   trackHistory?: boolean
   trackHash?: boolean
-}
-
-function observeHistory(cb: () => void): () => void {
-  if (typeof window === 'undefined')
-    return () => {}
-
-  const onPopState = () => cb()
-  const originalPush = history.pushState
-  const originalReplace = history.replaceState
-
-  history.pushState = function (...args) {
-    const result = originalPush.apply(this, args as any)
-    cb()
-    return result
-  }
-
-  history.replaceState = function (...args) {
-    const result = originalReplace.apply(this, args as any)
-    cb()
-    return result
-  }
-
-  window.addEventListener('popstate', onPopState)
-
-  return () => {
-    history.pushState = originalPush
-    history.replaceState = originalReplace
-    window.removeEventListener('popstate', onPopState)
-  }
 }
 
 export function observePageView(report: BehaviorEventReporter, options: PageViewObserverOptions = {}): () => void {

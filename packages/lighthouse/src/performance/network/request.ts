@@ -1,3 +1,5 @@
+import { shouldIgnoreUrl } from '../../utils/report/sampler'
+
 export interface RequestMetric {
   type: 'network'
   subType: 'request'
@@ -21,19 +23,6 @@ export interface RequestObserverOptions {
 }
 
 const REQUEST_INITIATOR_TYPES = new Set(['fetch', 'xmlhttprequest'])
-
-function shouldIgnoreUrl(url: string, ignoreUrls?: Array<string | RegExp>): boolean {
-  if (!ignoreUrls || ignoreUrls.length === 0)
-    return false
-
-  return ignoreUrls.some((pattern) => {
-    if (typeof pattern === 'string')
-      return url.includes(pattern)
-
-    pattern.lastIndex = 0
-    return pattern.test(url)
-  })
-}
 
 export function observeRequest(report: RequestReporter, options: RequestObserverOptions = {}): () => void {
   if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined')

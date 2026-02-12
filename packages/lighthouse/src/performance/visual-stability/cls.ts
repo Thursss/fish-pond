@@ -1,6 +1,5 @@
-import { onUrlChange } from '../../utils/index.js'
-import { reportOnHiddenOrInteract } from '../../utils/on-visibility.js'
-import { getSelector } from '../../utils/selector.js'
+import { getSelector } from '../../utils/get'
+import { onUrlChange, reportOnHiddenOrInteract } from '../../utils/on'
 
 export interface ClsMetric {
   type: 'performance'

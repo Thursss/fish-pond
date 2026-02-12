@@ -1,3 +1,5 @@
+import { shouldIgnoreUrl } from '../../utils/report/sampler'
+
 export interface ResourceMetric {
   type: 'network'
   subType: 'resource'
@@ -24,19 +26,6 @@ export interface ResourceObserverOptions {
 const DEFAULT_SLOW_THRESHOLD = 800
 const DEFAULT_SIZE_THRESHOLD = 200 * 1024
 const REQUEST_INITIATOR_TYPES = new Set(['fetch', 'xmlhttprequest'])
-
-function shouldIgnoreUrl(url: string, ignoreUrls?: Array<string | RegExp>): boolean {
-  if (!ignoreUrls || ignoreUrls.length === 0)
-    return false
-
-  return ignoreUrls.some((pattern) => {
-    if (typeof pattern === 'string')
-      return url.includes(pattern)
-
-    pattern.lastIndex = 0
-    return pattern.test(url)
-  })
-}
 
 export function observeResource(report: ResourceReporter, options: ResourceObserverOptions = {}): () => void {
   if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined')
