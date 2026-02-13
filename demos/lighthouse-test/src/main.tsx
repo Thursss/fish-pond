@@ -6,16 +6,21 @@ import { App } from './app'
 
 // 初始化 Lighthouse 监控 SDK
 initPerformanceMonitor({
-  appVersion: '1.0.0',
-  appName: 'test-app',
-  appId: 'test-app-id',
+  custom: {
+    appVersion: '1.0.0',
+    appName: 'test-app',
+    appId: 'test-app-id',
   // 不配置 uploadUrl，数据将打印到控制台
+  },
 })
 
 initErrorMonitor({
-  appVersion: '1.0.0',
-  appName: 'test-app',
-  appId: 'test-app-id',
+  custom: {
+    appVersion: '1.0.0',
+    appName: 'test-app',
+    appId: 'test-app-id',
+  // 不配置 uploadUrl，数据将打印到控制台
+  },
 })
 
 createRoot(document.getElementById('app')!).render(<App />)
