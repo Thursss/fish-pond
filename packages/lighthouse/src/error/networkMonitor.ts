@@ -52,6 +52,7 @@ function patchNetworkApis(options: NetworkSubscription) {
   XMLHttpRequest.prototype.open = function (method, url, async, username, password) {
     const xhr = this as XhrWithMeta
     const resolvedUrl = resolveUrl(typeof url === 'string' ? url : url.toString())
+    console.log('🚀 ~ error patchNetworkApis ~ resolvedUrl:', resolvedUrl)
     xhr[XHR_META] = {
       method: String(method).toUpperCase(),
       url: resolvedUrl,

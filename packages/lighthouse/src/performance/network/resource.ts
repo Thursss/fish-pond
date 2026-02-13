@@ -1,30 +1,36 @@
+import type { PerformanceBase } from '../shared'
 import { shouldIgnoreUrl } from '../../utils/report/sampler'
+import { buildPerformanceBase } from '../shared'
 
-export interface ResourceMetric {
+export interface ResourceMetric extends PerformanceBase {
   type: 'network'
-  subType: 'resource'
-  pageUrl: string
+  subType: 'RESPONSE'
   name: string
-  startTime: number
   duration: number
   initiatorType: string
   transferSize: number
   encodedBodySize: number
   decodedBodySize: number
   nextHopProtocol: string
+  responseStatus: number
+
+  serverTime: number
+  dnsLookupTime: number
+  tcpHandshakeTime: number
+  responseTime: number
+  fetchTime: number
+  ttfb: number
   entry: PerformanceResourceTiming
 }
 
 export type ResourceReporter = (metric: ResourceMetric) => void
 
 export interface ResourceObserverOptions {
-  slowThreshold?: number
-  sizeThreshold?: number
+  duration?: number
+  transferSize?: number
   ignoreUrls?: Array<string | RegExp>
 }
 
-const DEFAULT_SLOW_THRESHOLD = 800
-const DEFAULT_SIZE_THRESHOLD = 200 * 1024
 const REQUEST_INITIATOR_TYPES = new Set(['fetch', 'xmlhttprequest'])
 
 export function observeResource(report: ResourceReporter, options: ResourceObserverOptions = {}): () => void {
@@ -34,13 +40,15 @@ export function observeResource(report: ResourceReporter, options: ResourceObser
   if (!PerformanceObserver.supportedEntryTypes?.includes('resource'))
     return () => {}
 
-  const slowThreshold = options.slowThreshold ?? DEFAULT_SLOW_THRESHOLD
-  const sizeThreshold = options.sizeThreshold ?? DEFAULT_SIZE_THRESHOLD
+  const { duration: slowThreshold = 800, transferSize: sizeThreshold = 200 * 1024 } = options
 
   const obs = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       const resource = entry as PerformanceResourceTiming
-      // 过滤非请求资源
+
+      if (resource.responseStatus >= 200 && resource.responseStatus < 400)
+        continue
+
       if (REQUEST_INITIATOR_TYPES.has(resource.initiatorType))
         continue
 
@@ -51,20 +59,36 @@ export function observeResource(report: ResourceReporter, options: ResourceObser
       if (resource.duration < slowThreshold && transferSize < sizeThreshold)
         continue
 
+      const requestStart = resource.requestStart || resource.startTime
+      const responseStart = resource.responseStart || resource.startTime
+
+      const dnsLookupTime = Math.max(0, resource.domainLookupEnd - resource.domainLookupStart)
+      const tcpHandshakeTime = Math.max(0, resource.connectEnd - resource.connectStart)
+      const ttfb = Math.max(0, responseStart - requestStart)
+      const fetchTime = Math.max(0, resource.fetchStart - requestStart)
+      const responseTime = Math.max(0, responseStart - requestStart)
+      const serverTime = resource.serverTiming.reduce((acc, cur) => acc + cur.duration, 0)
+
       report({
-        type: 'network',
-        subType: 'resource',
-        pageUrl: location.href,
+        ...buildPerformanceBase('network', 'RESPONSE'),
         name: resource.name,
-        startTime: resource.startTime,
         duration: resource.duration,
         initiatorType: resource.initiatorType,
         transferSize: resource.transferSize,
         encodedBodySize: resource.encodedBodySize,
         decodedBodySize: resource.decodedBodySize,
         nextHopProtocol: resource.nextHopProtocol,
+        responseStatus: resource.responseStatus,
+
+        serverTime,
+        dnsLookupTime,
+        tcpHandshakeTime,
+        responseTime,
+        fetchTime,
+        ttfb,
+
         entry: resource,
-      })
+      } as ResourceMetric)
     }
   })
 

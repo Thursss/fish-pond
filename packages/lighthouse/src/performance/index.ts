@@ -1,6 +1,13 @@
 import type { SenderCustom, SenderOptions } from '../utils/report/sender'
+import type { FIDObserverOptions } from './interaction/fid'
+import type { INPObserverOptions } from './interaction/inp'
+import type { LongTaskObserverOptions } from './interaction/long-task'
+
+import type { FcpObserverOptions } from './loading/fcp'
+import type { LCPObserverOptions } from './loading/lcp'
 import type { RequestObserverOptions } from './network/request'
 import type { ResourceObserverOptions } from './network/resource'
+import type { ClsObserverOptions } from './visual-stability/cls'
 import { createSender } from '../utils/report/sender'
 
 import { observeFID } from './interaction/fid'
@@ -15,11 +22,18 @@ import { observeResource } from './network/resource'
 import { observeCLS } from './visual-stability/cls'
 
 export interface PerformanceMonitorOptions extends SenderOptions {
-  ignoreUrls?: Array<string | RegExp>
-  sampleRate?: Record<string, number>
-  request?: RequestObserverOptions
-  resource?: ResourceObserverOptions
-  custom?: SenderCustom
+  'ignoreUrls'?: Array<string | RegExp>
+  'sampleRate'?: Record<string, number>
+  'network.request'?: RequestObserverOptions | false
+  'network.resource'?: ResourceObserverOptions | false
+  'interaction.fid'?: FIDObserverOptions | false
+  'interaction.inp'?: INPObserverOptions | false
+  'interaction.long-task'?: LongTaskObserverOptions | false
+  'visual-stability.cls'?: ClsObserverOptions | false
+  'visual-stability.lcp'?: LCPObserverOptions | false
+  'visual-stability.fcp'?: FcpObserverOptions | false
+  'visual-stability.load'?: boolean
+  'custom'?: SenderCustom
 }
 
 export class PerformanceMonitor {
@@ -35,15 +49,23 @@ export class PerformanceMonitor {
   init() {
     const report = createSender(this.options, this.options.custom)
 
-    observeFP(report)
-    observeFCP(report)
-    observeLCP(report)
-    observeLoad(report)
-
     // 启动交互性能监控：首次输入延迟、交互到下次绘制、长任务
-    observeFID(report)
-    observeINP(report)
-    observeLongTask(report)
+    if (this.options['interaction.fid'] !== false)
+      observeFID(report, this.options['interaction.fid'] ?? {})
+    if (this.options['interaction.inp'] !== false)
+      observeINP(report, this.options['interaction.inp'] ?? {})
+    if (this.options['visual-stability.cls'] !== false)
+      observeLongTask(report)
+
+    // 启动加载性能监控：首次绘制、首次内容绘制、最大内容绘制、加载时间
+    if (this.options['visual-stability.fcp'] !== false)
+      observeFP(report)
+    if (this.options['visual-stability.fcp'] !== false)
+      observeFCP(report)
+    if (this.options['visual-stability.lcp'] !== false)
+      observeLCP(report)
+    if (this.options['visual-stability.load'] !== false)
+      observeLoad(report)
 
     // 构建忽略URL规则：合并基础忽略规则和上报URL，避免监控自身请求
     const baseIgnoreUrls: Array<string | RegExp> = []
@@ -56,32 +78,35 @@ export class PerformanceMonitor {
     if (this.options.reportUrl)
       baseIgnoreUrls.push(this.options.reportUrl)
 
-    // 构建请求监控的忽略URL列表：基础规则 + 请求特定规则
-    const requestIgnoreUrls = [
-      ...baseIgnoreUrls,
-      ...(this.options.request?.ignoreUrls ?? []), // 合并请求特定的忽略规则
-    ]
-
-    // 构建资源监控的忽略URL列表：基础规则 + 资源特定规则
-    const resourceIgnoreUrls = [
-      ...baseIgnoreUrls,
-      ...(this.options.resource?.ignoreUrls ?? []), // 合并资源特定的忽略规则
-    ]
-
     // 启动网络请求监控，传入合并后的忽略规则
-    observeRequest(report, {
-      ...this.options.request,
-      ignoreUrls: requestIgnoreUrls, // 使用合并后的请求忽略规则
-    })
+    if (this.options['network.request'] !== false) {
+      // 构建请求监控的忽略URL列表：基础规则 + 请求特定规则
+      const requestIgnoreUrls = [
+        ...baseIgnoreUrls,
+        ...(this.options['network.request']?.ignoreUrls ?? []), // 合并请求特定的忽略规则
+      ]
+      observeRequest(report, {
+        ...this.options['network.request'],
+        ignoreUrls: requestIgnoreUrls, // 使用合并后的请求忽略规则
+      })
+    }
 
     // 启动资源加载监控，传入合并后的忽略规则
-    observeResource(report, {
-      ...this.options.resource,
-      ignoreUrls: resourceIgnoreUrls, // 使用合并后的资源忽略规则
-    })
+    if (this.options['network.resource'] !== false) {
+      // 构建资源监控的忽略URL列表：基础规则 + 资源特定规则
+      const resourceIgnoreUrls = [
+        ...baseIgnoreUrls,
+        ...(this.options['network.resource']?.ignoreUrls ?? []), // 合并资源特定的忽略规则
+      ]
+      observeResource(report, {
+        ...this.options['network.resource'],
+        ignoreUrls: resourceIgnoreUrls, // 使用合并后的资源忽略规则
+      })
+    }
 
     // 启动视觉稳定性监控：累积布局偏移
-    observeCLS(report)
+    if (this.options['visual-stability.cls'] !== false)
+      observeCLS(report)
   }
 }
 

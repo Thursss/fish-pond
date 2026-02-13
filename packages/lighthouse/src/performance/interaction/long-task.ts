@@ -1,3 +1,6 @@
+import type { PerformanceBase } from '../shared'
+import { buildPerformanceBase } from '../shared'
+
 export interface LongTaskAttribution {
   name: string
   containerType?: string
@@ -6,38 +9,41 @@ export interface LongTaskAttribution {
   containerName?: string
 }
 
-export interface LongTaskMetric {
+export interface LongTaskMetric extends PerformanceBase {
   type: 'interaction'
-  subType: 'LONG_TASK'
-  pageUrl: string
-  startTime: number
+  subType: 'LongTask'
   duration: number
+  startTime: number
+  name: string
   attribution?: LongTaskAttribution[]
   entry: PerformanceEntry
 }
 
 export type LongTaskReporter = (metric: LongTaskMetric) => void
+export interface LongTaskObserverOptions {
+  duration?: number
+}
 
-export function observeLongTask(report: LongTaskReporter): () => void {
+export function observeLongTask(report: LongTaskReporter, options: LongTaskObserverOptions = {}): () => void {
   if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined')
     return () => {}
 
   if (!PerformanceObserver.supportedEntryTypes?.includes('longtask'))
     return () => {}
 
+  const passLine = options.duration ?? 50
   const obs = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      if (entry.duration <= 50)
+      if (entry.duration <= passLine)
         continue
 
       const attribution = (entry as any).attribution as Array<any> | undefined
 
       report({
-        type: 'interaction',
-        subType: 'LONG_TASK',
-        pageUrl: location.href,
+        ...buildPerformanceBase('interaction', 'LongTask'),
         startTime: entry.startTime,
         duration: entry.duration,
+        name: entry.name,
         attribution: attribution?.map(item => ({
           name: item.name,
           containerType: item.containerType,
@@ -46,7 +52,7 @@ export function observeLongTask(report: LongTaskReporter): () => void {
           containerName: item.containerName,
         })),
         entry,
-      })
+      } as LongTaskMetric)
     }
   })
 

@@ -1,26 +1,34 @@
+import type { PerformanceBase } from '../shared'
 import { getSelector } from '../../utils/get'
+import { buildPerformanceBase } from '../shared'
 
-export interface InpMetric {
+export interface InpMetric extends PerformanceBase {
   type: 'interaction'
   subType: 'INP'
-  pageUrl: string
-  value: number
-  startTime: number
-  name: string
-  interactionId: number
+  eventType: string
+  eventDelay: number
+  handlerDuration: number
+  duration: number
   targetSelector: string
+  interactionId: string
   entry: PerformanceEventTiming
 }
 
 export type InpReporter = (metric: InpMetric) => void
 
-export function observeINP(report: InpReporter): () => void {
+export interface INPObserverOptions {
+  eventDelay?: number
+  handlerDuration?: number
+}
+
+export function observeINP(report: InpReporter, options: INPObserverOptions = {}): () => void {
   if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined')
     return () => {}
 
   if (!PerformanceObserver.supportedEntryTypes?.includes('event'))
     return () => {}
 
+  const { eventDelay: minEventDelay = 50, handlerDuration: minHandlerDuration = 20 } = options
   const obs = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       const event = entry as PerformanceEventTiming
@@ -29,18 +37,22 @@ export function observeINP(report: InpReporter): () => void {
       if (!entry.interactionId)
         return
 
+      const eventDelay = event.processingStart - event.startTime
+      const handlerDuration = event.processingEnd - event.processingStart
+      if (eventDelay < minEventDelay && handlerDuration < minHandlerDuration)
+        continue
+
       report({
-        type: 'interaction',
-        subType: 'INP',
-        pageUrl: location.href,
-        value: event.duration,
-        startTime: event.startTime,
-        name: event.name,
+        ...buildPerformanceBase('interaction', 'INP'),
+        eventType: event.name,
+        eventDelay,
+        handlerDuration,
+        duration: event.duration,
+        targetSelector: event.target ? getSelector(event.target as Element) : '',
         // @ts-ignore
         interactionId: event.interactionId,
-        targetSelector: event.target ? getSelector(event.target as Element) : '',
         entry: event,
-      })
+      } as InpMetric)
     }
   })
 

@@ -1,17 +1,21 @@
+import type { PerformanceBase } from '../shared'
 import { getSelector } from '../../utils/get'
 import { onUrlChange, reportOnHiddenOrInteract } from '../../utils/on'
+import { buildPerformanceBase } from '../shared'
 
-export interface ClsMetric {
+export interface ClsMetric extends PerformanceBase {
   type: 'performance'
   subType: 'CLS'
-  pageUrl: string
-  value: number
+  cls: number
   clsEntries: any[]
 }
 
 export type ClsReporter = (metric: ClsMetric) => void
+export interface ClsObserverOptions {
+  cls?: number
+}
 
-export function observeCLS(report: ClsReporter): () => void {
+export function observeCLS(report: ClsReporter, options: ClsObserverOptions = {}): () => void {
   if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined')
     return () => {}
 
@@ -35,7 +39,6 @@ export function observeCLS(report: ClsReporter): () => void {
             const clsEntry = {
               selector: getSelector(source.node),
               value: shift.value,
-              // 可以添加更多 debug 信息，如 previousRect, currentRect
             }
             clsEntries.push(clsEntry)
           }
@@ -46,13 +49,14 @@ export function observeCLS(report: ClsReporter): () => void {
   obs.observe({ type: 'layout-shift', buffered: true })
 
   const reportFun = () => {
+    if (clsValue < (options.cls ?? 0.1))
+      return
+
     report({
-      type: 'performance',
-      subType: 'CLS',
-      pageUrl: location.href,
-      value: clsValue,
+      ...buildPerformanceBase('performance', 'CLS'),
+      cls: clsValue,
       clsEntries: [...clsEntries],
-    })
+    } as ClsMetric)
     clsValue = 0
     clsEntries = []
     obs.disconnect()

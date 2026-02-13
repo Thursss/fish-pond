@@ -1,9 +1,10 @@
+import type { PerformanceBase } from '../shared'
 import { reportOnHiddenOrInteract } from '../../utils/on'
+import { buildPerformanceBase } from '../shared'
 
-export interface LoadMetric {
+export interface LoadMetric extends PerformanceBase {
   type: 'performance'
   subType: 'LOAD'
-  pageUrl: string
   startTime: number
   value: number
   ttfb: number
@@ -35,16 +36,14 @@ function getLoadMetric(): LoadMetric | null {
       return null
 
     return {
-      type: 'performance',
-      subType: 'LOAD',
-      pageUrl: location.href,
+      ...buildPerformanceBase('performance', 'LOAD'),
       startTime: nav.startTime,
       value: nav.loadEventEnd - nav.startTime,
       ttfb: nav.responseStart - nav.requestStart,
       domContentLoaded: nav.domContentLoadedEventEnd - nav.startTime,
       domInteractive: nav.domInteractive - nav.startTime,
       entry: nav,
-    }
+    } as LoadMetric
   }
 
   const timing = performance.timing
@@ -54,15 +53,13 @@ function getLoadMetric(): LoadMetric | null {
   const startTime = timing.navigationStart
 
   return {
-    type: 'performance',
-    subType: 'LOAD',
-    pageUrl: location.href,
+    ...buildPerformanceBase('performance', 'LOAD'),
     startTime,
     value: timing.loadEventEnd - startTime,
     ttfb: timing.responseStart - timing.requestStart,
     domContentLoaded: timing.domContentLoadedEventEnd - startTime,
     domInteractive: timing.domInteractive - startTime,
-  }
+  } as LoadMetric
 }
 
 export function observeLoad(report: LoadReporter): () => void {

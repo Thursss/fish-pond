@@ -1,17 +1,23 @@
+import type { PerformanceBase } from '../shared'
 import { getSelector } from '../../utils/get'
 import { reportOnHiddenOrInteract } from '../../utils/on'
+import { buildPerformanceBase } from '../shared'
 
-export interface LcpMetric {
+export interface LcpMetric extends PerformanceBase {
   type: 'performance'
   subType: 'LCP'
-  pageUrl: string
   startTime: number
-  size: number
+  renderTime: number
+  loadTime: number
+  elementSize: number
   elementSelector: string
   entry: PerformanceEntry
 }
 
 export type LcpReporter = (metric: LcpMetric) => void
+export interface LCPObserverOptions {
+  startTime?: number
+}
 
 /**
  * 监控最大内容绘制（Largest Contentful Paint）指标
@@ -20,7 +26,7 @@ export type LcpReporter = (metric: LcpMetric) => void
  * @param report - 上报函数，用于将采集到的LCP数据发送到后端
  * @returns 清理函数，调用后可停止监控
  */
-export function observeLCP(report: LcpReporter): () => void {
+export function observeLCP(report: LcpReporter, options: LCPObserverOptions = {}): () => void {
   // 环境兼容性检查：确保在浏览器环境中运行且支持PerformanceObserver API
   if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined')
     return () => {}
@@ -31,6 +37,7 @@ export function observeLCP(report: LcpReporter): () => void {
 
   // 候选LCP元素，用于记录当前页面中最大的内容元素
   let candidate: PerformanceEntry | null = null
+  const passLine = options.startTime || 2500
 
   // 创建PerformanceObserver实例来监听largest-contentful-paint类型的性能条目
   const obs = new PerformanceObserver((list) => {
@@ -51,18 +58,24 @@ export function observeLCP(report: LcpReporter): () => void {
     if (!candidate)
       return
 
+    // 过滤掉渲染时间过短的LCP元素，避免上报无意义数据
+    if (candidate.startTime < passLine)
+      return
+
     // 上报LCP指标数据，包含丰富的归因信息
     report({
-      type: 'performance',
-      subType: 'LCP',
-      pageUrl: location.href,
+      ...buildPerformanceBase('performance', 'LCP'),
       startTime: candidate.startTime, // LCP发生的时间戳
       // @ts-expect-error
-      size: candidate.size, // 最大内容元素的尺寸
+      renderTime: candidate.renderTime, // 最大内容元素渲染完成的时间戳
+      // @ts-expect-error
+      loadTime: candidate.loadTime, // 最大内容元素加载完成的时间戳
+      // @ts-expect-error
+      elementSize: candidate.size, // 最大内容元素的尺寸
       // @ts-expect-error
       elementSelector: candidate.element ? getSelector(candidate.element) : '', // 最大内容元素的CSS选择器，用于定位问题元素
       entry: candidate, // 原始性能条目，便于调试和分析
-    })
+    } as LcpMetric)
 
     // LCP指标只需在页面生命周期结束时上报一次，上报后断开观察器
     obs.disconnect()

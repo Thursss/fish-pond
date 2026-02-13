@@ -1,33 +1,44 @@
-export interface FidMetric {
+import type { PerformanceBase } from '../shared'
+import { buildPerformanceBase } from '../shared'
+
+export interface FidMetric extends PerformanceBase {
   type: 'interaction'
   subType: 'FID'
-  pageUrl: string
-  value: number
-  delay: number
+  handlerTime: number
+  inputDelay: number
+  interactionId: string
   entry: PerformanceEntry
 }
 
 export type FidReporter = (metric: FidMetric) => void
 
-export function observeFID(report: FidReporter): () => void {
+export interface FIDObserverOptions {
+  inputDelay?: number
+}
+export function observeFID(report: FidReporter, options: FIDObserverOptions = {}): () => void {
   if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined')
     return () => {}
 
   if (!PerformanceObserver.supportedEntryTypes?.includes('first-input'))
     return () => {}
 
+  const passLine = options.inputDelay ?? 100
+
   const obs = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      const fid = (entry as PerformanceEventTiming).processingStart - entry.startTime
-      const delay = (entry as PerformanceEventTiming).startTime - (entry as PerformanceEventTiming).processingStart
+      const target = entry as PerformanceEventTiming
+      const inputDelay = target.processingStart - entry.startTime
+      const handlerTime = target.processingEnd - target.processingStart
+      if (inputDelay < passLine)
+        continue
+
       report({
-        type: 'interaction',
-        subType: 'FID',
-        pageUrl: location.href,
-        delay,
-        value: fid,
+        ...buildPerformanceBase('interaction', 'FID'),
+        inputDelay,
+        handlerTime,
+        interactionId: (target as any).interactionId,
         entry,
-      })
+      } as FidMetric)
       obs.disconnect()
     }
   })
