@@ -4,6 +4,7 @@ import type { INPObserverOptions } from './interaction/inp'
 import type { LongTaskObserverOptions } from './interaction/long-task'
 
 import type { FcpObserverOptions } from './loading/fcp'
+import type { FpObserverOptions } from './loading/fp'
 import type { LCPObserverOptions } from './loading/lcp'
 import type { RequestObserverOptions } from './network/request'
 import type { ResourceObserverOptions } from './network/resource'
@@ -31,6 +32,7 @@ export interface PerformanceMonitorOptions extends SenderOptions {
   'interaction.long-task'?: LongTaskObserverOptions | false
   'visual-stability.cls'?: ClsObserverOptions | false
   'visual-stability.lcp'?: LCPObserverOptions | false
+  'visual-stability.fp'?: FpObserverOptions | false
   'visual-stability.fcp'?: FcpObserverOptions | false
   'visual-stability.load'?: boolean
   'custom'?: SenderCustom
@@ -54,18 +56,21 @@ export class PerformanceMonitor {
       observeFID(report, this.options['interaction.fid'] ?? {})
     if (this.options['interaction.inp'] !== false)
       observeINP(report, this.options['interaction.inp'] ?? {})
-    if (this.options['visual-stability.cls'] !== false)
-      observeLongTask(report)
+    if (this.options['interaction.long-task'] !== false)
+      observeLongTask(report, this.options['interaction.long-task'] ?? {})
 
     // 启动加载性能监控：首次绘制、首次内容绘制、最大内容绘制、加载时间
+    if (this.options['visual-stability.fp'] !== false)
+      observeFP(report, this.options['visual-stability.fp'] ?? {})
     if (this.options['visual-stability.fcp'] !== false)
-      observeFP(report)
-    if (this.options['visual-stability.fcp'] !== false)
-      observeFCP(report)
+      observeFCP(report, this.options['visual-stability.fcp'] ?? {})
     if (this.options['visual-stability.lcp'] !== false)
-      observeLCP(report)
+      observeLCP(report, this.options['visual-stability.lcp'] ?? {})
     if (this.options['visual-stability.load'] !== false)
       observeLoad(report)
+    // 启动视觉稳定性监控：累积布局偏移
+    if (this.options['visual-stability.cls'] !== false)
+      observeCLS(report, this.options['visual-stability.cls'] ?? {})
 
     // 构建忽略URL规则：合并基础忽略规则和上报URL，避免监控自身请求
     const baseIgnoreUrls: Array<string | RegExp> = []
@@ -103,10 +108,6 @@ export class PerformanceMonitor {
         ignoreUrls: resourceIgnoreUrls, // 使用合并后的资源忽略规则
       })
     }
-
-    // 启动视觉稳定性监控：累积布局偏移
-    if (this.options['visual-stability.cls'] !== false)
-      observeCLS(report)
   }
 }
 
